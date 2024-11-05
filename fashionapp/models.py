@@ -75,4 +75,4 @@ class PasswordResetUser(AbstractBaseUser, PermissionsMixin):
 class products(models.Model):
     product_name = models.CharField(max_length=100,null=False)
     Description = models.CharField(max_length=100, null=False)
-    product_image=models.ImageField(upload_to=Image,null=False )
+    product_image=models.ImageField(upload_to=Image,null=False)
