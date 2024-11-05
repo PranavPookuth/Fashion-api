@@ -1,3 +1,5 @@
+from tkinter import Image
+
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import AbstractUser, Permission, Group, PermissionsMixin
 from django.db import models
@@ -72,3 +74,4 @@ class PasswordResetUser(AbstractBaseUser, PermissionsMixin):
 class products(models.Model):
     product_name = models.CharField(max_length=100,null=False)
     Description = models.CharField(max_length=100, null=False)
+    product_image=models.ImageField(upload_to=Image)
