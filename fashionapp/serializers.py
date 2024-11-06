@@ -119,6 +119,16 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True)
     confirm_new_password = serializers.CharField(write_only=True)
 
+    def validate(self, data):
+        email = data.get('email')
+        new_password = data.get('new_password')
+        confirm_new_password = data.get('confirm_new_password')
+
+        if new_password != confirm_new_password:
+            raise serializers.ValidationError("New password and confirm new password do not match.")
+
+        return data
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
