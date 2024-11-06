@@ -127,7 +127,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         if new_password != confirm_new_password:
             raise serializers.ValidationError("New password and confirm new password do not match.")
 
-        return  data
+        return data
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
