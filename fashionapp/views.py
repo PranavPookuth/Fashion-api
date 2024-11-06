@@ -172,6 +172,29 @@ class PassOTPVerificationView(generics.GenericAPIView):
         return secret_key == otp
 
 
+class ChangePasswordView(generics.GenericAPIView):
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = ChangePasswordSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data.get('email')
+        new_password = serializer.validated_data.get('new_password')
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'detail': f'User with email {email} not found.', 'status': False}, status=status.HTTP_404_NOT_FOUND)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'detail': 'Password changed successfully.', 'status': True}, status=status.HTTP_200_OK)
+
+
 class Usercreateview(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer

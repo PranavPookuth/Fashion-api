@@ -114,6 +114,11 @@ class PassOTPVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp = serializers.CharField(min_length=4)
 
+class ChangePasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField(write_only=True)
+    confirm_new_password = serializers.CharField(write_only=True)
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
