@@ -103,6 +103,8 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutView(APIView):
+    authentication_classes = []
+    permission_classes = []
     def post(self,request):
         response=Response()
         response.delete_cookie('jwt')
@@ -116,6 +118,8 @@ class LogoutView(APIView):
 User = get_user_model()
 
 class PasswordResetView(generics.GenericAPIView):
+    authentication_classes = []
+    permission_classes = []
     serializer_class = PasswordResetSerializer
 
     def post(self, request):
@@ -137,6 +141,35 @@ class PasswordResetView(generics.GenericAPIView):
             return Response({'detail': 'OTP sent successfully.','status':True}, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'User not found.','status':False}, status=status.HTTP_404_NOT_FOUND)
+
+class PassOTPVerificationView(generics.GenericAPIView):
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = PassOTPVerificationSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data.get('email', None)
+        otp = serializer.validated_data.get('otp', None)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'detail': f'User with email {email} not found.', 'status': False}, status=status.HTTP_404_NOT_FOUND)
+
+        if not self.verify_otp(user.otp_secret_key, otp):
+            return Response({'detail': 'Invalid OTP.', 'status': False}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.otp_secret_key = None
+        user.save()
+
+        return Response({'detail': 'OTP verification successful. Proceed to reset password.', 'status': True}, status=status.HTTP_200_OK)
+
+    def verify_otp(self, secret_key, otp):
+
+        return secret_key == otp
 
 
 class Usercreateview(generics.ListCreateAPIView):

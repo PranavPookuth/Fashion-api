@@ -15,6 +15,9 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name='logout'),
 
     path('password-reset/', views.PasswordResetView.as_view(), name='password-reset'),
+    path('password-otp/', views.PassOTPVerificationView.as_view(), name='otp-verification'),
+
+
 
     path('category/',CategoryViewCreate.as_view(),name='category'),
     path('category/<int:pk>/', CategoryDeatils.as_view(), name='category-details'),

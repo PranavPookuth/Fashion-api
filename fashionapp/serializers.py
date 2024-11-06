@@ -110,6 +110,10 @@ User = get_user_model()
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
+class PassOTPVerificationSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(min_length=4)
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
