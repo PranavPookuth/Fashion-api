@@ -115,3 +115,46 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model =Category
+        fields = '__all__'
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Products
+        fields = '__all__'
+
+class OrderSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+    c_name = serializers.CharField(source='category.category_name', read_only=True)
+    p_name = serializers.CharField(source='product.product_name', read_only=True)
+    class Meta:
+        model = Order
+        fields =['id','product','quantity','order_date','c_name','p_name','category']
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'product_name', 'quantity', 'price', 'total_price']
+
+    def get_product_name(self, instance):
+        return instance.product.product_name  # Adjust based on your model field
+
+    def get_price(self, instance):
+        return instance.product.price  # Adjust based on your model field
+
+    def get_total_price(self, instance):
+        return instance.total_price()  # Call the total_price method of CartItem
+
+
+class CartSerializer(serializers.ModelSerializer):
+    cart_items = CartItemSerializer(many=True)
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'user_id', 'cart_items', 'is_active', 'created_at', 'updated_at']

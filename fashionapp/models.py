@@ -1,6 +1,3 @@
-from pickle import FALSE
-from tkinter import Image
-
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import AbstractUser, Permission, Group, PermissionsMixin
 from django.db import models
@@ -71,8 +68,54 @@ class PasswordResetUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
+class Category(models.Model):
+    category_name=models.CharField(max_length=200)
 
-class products(models.Model):
+    def __str__(self):
+        return self.category_name
+
+
+class Products(models.Model):
     product_name = models.CharField(max_length=100,null=False)
     Description = models.CharField(max_length=100, null=False)
-    product_image=models.ImageField(upload_to=Image,null=False)
+    product_image=models.ImageField(upload_to='Image',null=False)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    category=models.ForeignKey(Category,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.product_name
+
+
+class Order(models.Model):
+    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    order_date = models.DateTimeField(auto_now_add=True)
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cart")
+    product = models.ForeignKey(Products, on_delete=models.CASCADE,null=True)
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Cart of {self.user.email}"
+
+    def total_price(self):
+        # Calculate total price of all items in the cart
+        total = sum(item.total_price() for item in self.cart_items.all())
+        return total
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="cart_items")
+    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.product.product_name} in {self.cart.user.email}'s cart"
+
+    def total_price(self):
+        return self.product.price * self.quantity
